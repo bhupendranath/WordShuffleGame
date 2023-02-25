@@ -1,0 +1,63 @@
+<aura:component implements= "flexipage:availableForAllPageTypes">
+
+   <!--Game mode to define tiles-->
+   <aura:attribute name="mode" type="String" default="medium"/>
+
+   <!--To access all those random word in our markup file we need to store them in the attribute-->
+   <aura:attribute name="words" type="List" access="private" />
+   <aura:attribute name="winWord" type="String" access="private" />   <!--winWord: is just a random word from controller file-->
+   <aura:attribute name="clickCount" type="Integer" default="0" access="private" />
+
+   <!--To get the block size-->
+   <aura:attribute name="blockSize" type="Integer" access="private"/>
+
+   <!--this init handler is executed before our component renders, hence we define those task here, 
+    which we want to perform before rendering in this action="{!c.doInit}" JS function-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <!--Handling Component Event from child Block-->
+    <aura:handler name="onclick" event="c:BlockClickEvent" action="{!c.blockClickHandler}" />
+
+    <!--To Store result-->
+    <aura:attribute name="result" type="String" access="private"/>
+
+    <!--After 3 moves, when 0 moves left we need to disable the board-->
+    <aura:attribute name="boardDisabled" type="Boolean" default="false" access="private" />
+
+    <!--Aura method to 'Start New Game' again and we'll call it from Board Panel component-->
+    <aura:method name="startGame" action="{!c.doInit}" description="Start new game">
+    </aura:method>
+
+    <!--Aura method to reshuffle board-->
+    <aura:method name="reshuffleBoard" action="{!c.reshuffleBoard}" description="Reshuffle Board">
+    </aura:method>
+
+    <!--<aura:handler name="render" value="{!this}" action="{!c.doRender}" />-->
+    <div class="board">
+        <lightning:layout multipleRows="true">
+            <lightning:layoutItem size="size" padding="around-small">
+                <div class="slds-text-heading--medium">WORD : <span class="win-word">{!v.winWord}</span></div> 
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="around-small">
+                <div class="slds-text-heading--medium">{!v.result}</div> 
+            </lightning:layoutItem>
+            <lightning:layoutItem size="size" padding="around-small">
+                <div class="slds-text-heading--medium">Moves Left : {!(3 - v.clickCount)}</div> 
+            </lightning:layoutItem>
+        </lightning:layout>
+
+        <!--Creating layer on top of board so that I can prevent user from clicking it when moves ended and board disabled-->
+        <aura:if isTrue="{!v.boardDisabled}">
+            <div class="board-disabled"></div>
+        </aura:if>
+
+        <lightning:layout multipleRows="true">
+
+             <aura:iteration items="{!v.words}" var="wordObj">
+                <lightning:layoutItem size="{!v.blockSize}" padding="around-small">
+                      <c:Block label="{!wordObj.word}" open="{!wordObj.open}"></c:Block>
+                </lightning:layoutItem>
+             </aura:iteration>
+        </lightning:layout>
+    </div>
+</aura:component>
